@@ -121,6 +121,7 @@ interface RollerCoasterState {
   showWoodSupports: boolean;
   isNightMode: boolean;
   weather: "sunny" | "rain" | "snow";
+  groundType: "grass" | "snow" | "desert";
   targetRideSpeed: number;
   cameraTarget: THREE.Vector3 | null;
   savedCoasters: SavedCoaster[];
@@ -140,6 +141,7 @@ interface RollerCoasterState {
   setRideSpeed: (speed: number) => void;
   setTargetRideSpeed: (speed: number) => void;
   setWeather: (weather: "sunny" | "rain" | "snow") => void;
+  setGroundType: (type: "grass" | "snow" | "desert") => void;
   setIsDraggingPoint: (dragging: boolean) => void;
   setIsAddingPoints: (adding: boolean) => void;
   setIsLooped: (looped: boolean) => void;
@@ -175,6 +177,7 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   showWoodSupports: false,
   isNightMode: false,
   weather: "sunny",
+  groundType: "grass",
   targetRideSpeed: 1.0,
   cameraTarget: null,
   savedCoasters: loadSavedCoasters(),
@@ -197,6 +200,8 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   setIsNightMode: (night) => set({ isNightMode: night }),
 
   setWeather: (weather) => set({ weather }),
+
+  setGroundType: (groundType) => set({ groundType }),
 
   setTargetRideSpeed: (speed) => set({ targetRideSpeed: Math.max(0.2, Math.min(5, speed)) }),
   

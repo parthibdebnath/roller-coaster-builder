@@ -26,6 +26,8 @@ export function GameUI() {
     setIsNightMode,
     weather,
     setWeather,
+    groundType,
+    setGroundType,
     targetRideSpeed,
     setTargetRideSpeed,
     createLoopAtPoint,
@@ -195,6 +197,21 @@ export function GameUI() {
                       : "bg-gray-700 hover:bg-gray-600"}`}
                   >
                     {w}
+                  </Button>
+                ))}
+              </div>
+
+              <div className="flex gap-1">
+                {(["grass", "snow", "desert"] as const).map((g) => (
+                  <Button
+                    key={g}
+                    size="sm"
+                    onClick={() => setGroundType(g)}
+                    className={`h-6 text-[10px] px-1 flex-1 capitalize ${groundType === g 
+                      ? "bg-green-700" 
+                      : "bg-gray-700 hover:bg-gray-600"}`}
+                  >
+                    {g}
                   </Button>
                 ))}
               </div>

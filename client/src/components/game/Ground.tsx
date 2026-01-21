@@ -1,17 +1,30 @@
 import { useTexture } from "@react-three/drei";
 import * as THREE from "three";
+import { useRollerCoaster } from "@/lib/stores/useRollerCoaster";
 
 export function Ground() {
+  const { groundType } = useRollerCoaster();
   const basePath = import.meta.env.BASE_URL || '/';
-  const texture = useTexture(`${basePath}textures/grass.png`);
+  
+  const texturePath = groundType === 'grass' 
+    ? 'textures/grass.png' 
+    : groundType === 'desert' 
+      ? 'textures/sand.jpg' 
+      : 'textures/asphalt.png'; // Using asphalt as fallback/base for snow for now, we'll tint it white if it's snow
+  
+  const texture = useTexture(`${basePath}${texturePath}`);
   
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(200, 200);
   
+  const materialProps = groundType === 'snow' 
+    ? { color: "#ffffff", roughness: 0.8, metalness: 0.1 } 
+    : { map: texture };
+
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
       <planeGeometry args={[800, 800]} />
-      <meshStandardMaterial map={texture} />
+      <meshStandardMaterial {...materialProps} />
     </mesh>
   );
 }
