@@ -1,8 +1,161 @@
-import { useMemo } from "react";
+import { useMemo, useRef, useEffect } from "react";
+import { useFrame, useThree } from "@react-three/fiber";
+import * as THREE from "three";
 import { useRollerCoaster } from "@/lib/stores/useRollerCoaster";
 
+// Rain particle component
+function RainParticles() {
+  const rainRef = useRef<THREE.Points>(null);
+  const particleCount = 5000;
+  
+  const positions = useMemo(() => {
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 400;
+      positions[i * 3 + 1] = Math.random() * 100 + 50;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+    }
+    return positions;
+  }, []);
+  
+  useFrame(() => {
+    if (rainRef.current) {
+      const positions = rainRef.current.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3 + 1] -= 0.5; // Fall speed
+        if (positions[i * 3 + 1] < 0) {
+          positions[i * 3 + 1] = 100 + Math.random() * 50;
+          positions[i * 3] = (Math.random() - 0.5) * 400;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+        }
+      }
+      rainRef.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+  
+  return (
+    <points ref={rainRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={particleCount}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={0.1} color="#88AAFF" transparent opacity={0.6} />
+    </points>
+  );
+}
+
+// Snow particle component
+function SnowParticles() {
+  const snowRef = useRef<THREE.Points>(null);
+  const particleCount = 3000;
+  
+  const positions = useMemo(() => {
+    const positions = new Float32Array(particleCount * 3);
+    for (let i = 0; i < particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * 400;
+      positions[i * 3 + 1] = Math.random() * 100 + 50;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+    }
+    return positions;
+  }, []);
+  
+  useFrame(() => {
+    if (snowRef.current) {
+      const positions = snowRef.current.geometry.attributes.position.array as Float32Array;
+      for (let i = 0; i < particleCount; i++) {
+        positions[i * 3] += Math.sin(i) * 0.02; // Sway side to side
+        positions[i * 3 + 1] -= 0.15; // Fall speed (slower than rain)
+        if (positions[i * 3 + 1] < 0) {
+          positions[i * 3 + 1] = 100 + Math.random() * 50;
+          positions[i * 3] = (Math.random() - 0.5) * 400;
+          positions[i * 3 + 2] = (Math.random() - 0.5) * 400;
+        }
+      }
+      snowRef.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
+  
+  return (
+    <points ref={snowRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={particleCount}
+          array={positions}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial size={0.3} color="#FFFFFF" transparent opacity={0.8} />
+    </points>
+  );
+}
+
+// Component to handle smooth color transitions
+function SkyColorController({ isNightMode, weatherType }: { isNightMode: boolean; weatherType: string }) {
+  const { scene } = useThree();
+  const currentSkyColor = useRef(new THREE.Color());
+  const currentFogColor = useRef(new THREE.Color());
+  
+  useFrame(() => {
+    let targetSkyColor: THREE.Color;
+    let targetFogColor: THREE.Color;
+    
+    if (isNightMode) {
+      if (weatherType === "rain") {
+        targetSkyColor = new THREE.Color("#0A0A1A");
+        targetFogColor = new THREE.Color("#0A0A1A");
+      } else if (weatherType === "snow") {
+        targetSkyColor = new THREE.Color("#1A1A2E");
+        targetFogColor = new THREE.Color("#1A1A2E");
+      } else {
+        targetSkyColor = new THREE.Color("#101025");
+        targetFogColor = new THREE.Color("#101025");
+      }
+    } else {
+      if (weatherType === "rain") {
+        targetSkyColor = new THREE.Color("#4A5568");
+        targetFogColor = new THREE.Color("#4A5568");
+      } else if (weatherType === "snow") {
+        targetSkyColor = new THREE.Color("#B0C4DE");
+        targetFogColor = new THREE.Color("#B0C4DE");
+      } else {
+        targetSkyColor = new THREE.Color("#87CEEB");
+        targetFogColor = new THREE.Color("#87CEEB");
+      }
+    }
+    
+    currentSkyColor.current.lerp(targetSkyColor, 0.05);
+    currentFogColor.current.lerp(targetFogColor, 0.05);
+    
+    scene.background = currentSkyColor.current;
+    if (scene.fog instanceof THREE.Fog) {
+      scene.fog.color = currentFogColor.current;
+    }
+  });
+  
+  useEffect(() => {
+    if (isNightMode) {
+      currentSkyColor.current.set(weatherType === "rain" ? "#0A0A1A" : weatherType === "snow" ? "#1A1A2E" : "#101025");
+      currentFogColor.current.set(weatherType === "rain" ? "#0A0A1A" : weatherType === "snow" ? "#1A1A2E" : "#101025");
+    } else {
+      currentSkyColor.current.set(weatherType === "rain" ? "#4A5568" : weatherType === "snow" ? "#B0C4DE" : "#87CEEB");
+      currentFogColor.current.set(weatherType === "rain" ? "#4A5568" : weatherType === "snow" ? "#B0C4DE" : "#87CEEB");
+    }
+    scene.background = currentSkyColor.current;
+    if (scene.fog instanceof THREE.Fog) {
+      scene.fog.color = currentFogColor.current;
+    }
+  }, [isNightMode, weatherType, scene]);
+  
+  return null;
+}
+
 export function Sky() {
-  const { isNightMode } = useRollerCoaster();
+  const { isNightMode, weatherType } = useRollerCoaster();
   
   const parkLights = useMemo(() => {
     const lights: { x: number; z: number; height: number; color: string }[] = [];
@@ -44,25 +197,75 @@ export function Sky() {
     return spokes;
   }, []);
   
+  // Smooth color transitions based on weather
+  useFrame(() => {
+    let targetSkyColor: THREE.Color;
+    let targetFogColor: THREE.Color;
+    
+    if (isNightMode) {
+      // Night mode colors
+      if (weatherType === "rain") {
+        targetSkyColor = new THREE.Color("#0A0A1A");
+        targetFogColor = new THREE.Color("#0A0A1A");
+      } else if (weatherType === "snow") {
+        targetSkyColor = new THREE.Color("#1A1A2E");
+        targetFogColor = new THREE.Color("#1A1A2E");
+      } else {
+        targetSkyColor = new THREE.Color("#101025");
+        targetFogColor = new THREE.Color("#101025");
+      }
+    } else {
+      // Day mode colors
+      if (weatherType === "rain") {
+        targetSkyColor = new THREE.Color("#4A5568");
+        targetFogColor = new THREE.Color("#4A5568");
+      } else if (weatherType === "snow") {
+        targetSkyColor = new THREE.Color("#B0C4DE");
+        targetFogColor = new THREE.Color("#B0C4DE");
+      } else {
+        targetSkyColor = new THREE.Color("#87CEEB");
+        targetFogColor = new THREE.Color("#87CEEB");
+      }
+    }
+    
+    // Smooth interpolation
+    currentSkyColor.current.lerp(targetSkyColor, 0.05);
+    currentFogColor.current.lerp(targetFogColor, 0.05);
+  });
+  
+  // Initialize colors
+  useEffect(() => {
+    if (isNightMode) {
+      currentSkyColor.current.set(weatherType === "rain" ? "#0A0A1A" : weatherType === "snow" ? "#1A1A2E" : "#101025");
+      currentFogColor.current.set(weatherType === "rain" ? "#0A0A1A" : weatherType === "snow" ? "#1A1A2E" : "#101025");
+    } else {
+      currentSkyColor.current.set(weatherType === "rain" ? "#4A5568" : weatherType === "snow" ? "#B0C4DE" : "#87CEEB");
+      currentFogColor.current.set(weatherType === "rain" ? "#4A5568" : weatherType === "snow" ? "#B0C4DE" : "#87CEEB");
+    }
+  }, [isNightMode, weatherType]);
+  
   if (isNightMode) {
     return (
       <>
+        <SkyColorController isNightMode={isNightMode} weatherType={weatherType} />
         <color attach="background" args={["#101025"]} />
         <fog attach="fog" args={["#101025", 150, 500]} />
         
-        <ambientLight intensity={0.4} color="#6688cc" />
-        <directionalLight position={[50, 50, 25]} intensity={0.5} color="#8899bb" />
+        <ambientLight intensity={weatherType === "rain" ? 0.3 : weatherType === "snow" ? 0.5 : 0.4} color={weatherType === "snow" ? "#AABBCC" : "#6688cc"} />
+        <directionalLight position={[50, 50, 25]} intensity={weatherType === "rain" ? 0.3 : weatherType === "snow" ? 0.6 : 0.5} color={weatherType === "snow" ? "#CCDDEE" : "#8899bb"} />
         
         <pointLight position={[0, 30, 0]} intensity={2} color="#FFFFFF" distance={150} />
         <pointLight position={[100, 40, -80]} intensity={1.5} color="#FF88FF" distance={100} />
         <pointLight position={[-80, 35, 60]} intensity={1.5} color="#FFAA44" distance={100} />
         
-        <mesh position={[-60, 45, -80]}>
-          <sphereGeometry args={[6, 32, 32]} />
-          <meshBasicMaterial color="#FFFFEE" />
-        </mesh>
+        {weatherType !== "snow" && (
+          <mesh position={[-60, 45, -80]}>
+            <sphereGeometry args={[6, 32, 32]} />
+            <meshBasicMaterial color="#FFFFEE" />
+          </mesh>
+        )}
         
-        {stars.map((star, i) => (
+        {weatherType !== "rain" && weatherType !== "snow" && stars.map((star, i) => (
           <mesh key={i} position={[star.x, star.y, star.z]}>
             <sphereGeometry args={[star.size, 6, 6]} />
             <meshBasicMaterial color="#FFFFFF" />
@@ -181,24 +384,30 @@ export function Sky() {
             );
           })}
         </group>
+        
+        {weatherType === "rain" && <RainParticles />}
+        {weatherType === "snow" && <SnowParticles />}
       </>
     );
   }
   
   return (
     <>
+      <SkyColorController isNightMode={isNightMode} weatherType={weatherType} />
       <color attach="background" args={["#87CEEB"]} />
       <fog attach="fog" args={["#87CEEB", 100, 400]} />
       
-      <mesh position={[50, 40, -50]}>
-        <sphereGeometry args={[8, 32, 32]} />
-        <meshBasicMaterial color="#FFFF88" />
-      </mesh>
+      {weatherType === "sunny" && (
+        <mesh position={[50, 40, -50]}>
+          <sphereGeometry args={[8, 32, 32]} />
+          <meshBasicMaterial color="#FFFF88" />
+        </mesh>
+      )}
       
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={weatherType === "rain" ? 0.3 : weatherType === "snow" ? 0.5 : 0.4} />
       <directionalLight
         position={[50, 50, 25]}
-        intensity={1}
+        intensity={weatherType === "rain" ? 0.6 : weatherType === "snow" ? 0.8 : 1}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -208,7 +417,10 @@ export function Sky() {
         shadow-camera-top={100}
         shadow-camera-bottom={-100}
       />
-      <hemisphereLight args={["#87CEEB", "#228B22", 0.3]} />
+      <hemisphereLight args={[weatherType === "rain" ? "#4A5568" : weatherType === "snow" ? "#B0C4DE" : "#87CEEB", "#228B22", 0.3]} />
+      
+      {weatherType === "rain" && <RainParticles />}
+      {weatherType === "snow" && <SnowParticles />}
     </>
   );
 }

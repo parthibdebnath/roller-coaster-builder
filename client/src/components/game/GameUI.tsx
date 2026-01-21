@@ -24,6 +24,8 @@ export function GameUI() {
     setShowWoodSupports,
     isNightMode,
     setIsNightMode,
+    weatherType,
+    setWeatherType,
     createLoopAtPoint,
     setCameraTarget,
     savedCoasters,
@@ -180,6 +182,36 @@ export function GameUI() {
                 {isNightMode ? "Night ON" : "Night OFF"}
               </Button>
               
+              <div className="flex gap-1">
+                <Button
+                  size="sm"
+                  onClick={() => setWeatherType("sunny")}
+                  className={`h-6 text-[10px] px-2 flex-1 ${weatherType === "sunny"
+                    ? "bg-yellow-600 hover:bg-yellow-700"
+                    : "bg-gray-600 hover:bg-gray-700"}`}
+                >
+                  ☀️
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setWeatherType("rain")}
+                  className={`h-6 text-[10px] px-2 flex-1 ${weatherType === "rain"
+                    ? "bg-blue-700 hover:bg-blue-800"
+                    : "bg-gray-600 hover:bg-gray-700"}`}
+                >
+                  🌧️
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={() => setWeatherType("snow")}
+                  className={`h-6 text-[10px] px-2 flex-1 ${weatherType === "snow"
+                    ? "bg-cyan-600 hover:bg-cyan-700"
+                    : "bg-gray-600 hover:bg-gray-700"}`}
+                >
+                  ❄️
+                </Button>
+              </div>
+              
               <Button
                 size="sm"
                 onClick={startRide}
@@ -279,6 +311,36 @@ export function GameUI() {
               <p className="text-[10px] text-gray-400 mt-0.5">
                 {Math.round(rideProgress * 100)}%
               </p>
+            </div>
+            
+            <div className="flex gap-1 mb-2">
+              <Button
+                size="sm"
+                onClick={() => setWeatherType("sunny")}
+                className={`h-6 text-[10px] px-2 flex-1 ${weatherType === "sunny"
+                  ? "bg-yellow-600 hover:bg-yellow-700"
+                  : "bg-gray-600 hover:bg-gray-700"}`}
+              >
+                ☀️
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setWeatherType("rain")}
+                className={`h-6 text-[10px] px-2 flex-1 ${weatherType === "rain"
+                  ? "bg-blue-700 hover:bg-blue-800"
+                  : "bg-gray-600 hover:bg-gray-700"}`}
+              >
+                🌧️
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => setWeatherType("snow")}
+                className={`h-6 text-[10px] px-2 flex-1 ${weatherType === "snow"
+                  ? "bg-cyan-600 hover:bg-cyan-700"
+                  : "bg-gray-600 hover:bg-gray-700"}`}
+              >
+                ❄️
+              </Button>
             </div>
             
             <Button
