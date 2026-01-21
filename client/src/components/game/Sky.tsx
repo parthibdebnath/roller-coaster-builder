@@ -22,8 +22,23 @@ function WeatherParticles({ type }: { type: "rain" | "snow" }) {
   useFrame((state) => {
     if (!meshRef.current) return;
     const positions = meshRef.current.geometry.attributes.position.array as Float32Array;
+    const cameraPos = state.camera.position;
+
     for (let i = 0; i < count; i++) {
       positions[i * 3 + 1] -= particles.vel[i];
+      
+      // Horizontal wrapping
+      const x = positions[i * 3];
+      const z = positions[i * 3 + 2];
+      
+      if (Math.abs(x - cameraPos.x) > 50) {
+        positions[i * 3] = cameraPos.x + (x > cameraPos.x ? -50 : 50);
+      }
+      if (Math.abs(z - cameraPos.z) > 50) {
+        positions[i * 3 + 2] = cameraPos.z + (z > cameraPos.z ? -50 : 50);
+      }
+
+      // Vertical wrapping
       if (positions[i * 3 + 1] < 0) {
         positions[i * 3 + 1] = 50;
       }
