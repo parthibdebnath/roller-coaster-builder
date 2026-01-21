@@ -2,7 +2,6 @@ import { create } from "zustand";
 import * as THREE from "three";
 
 export type CoasterMode = "build" | "ride" | "preview";
-export type WeatherType = "sunny" | "rain" | "snow";
 
 // Loop segment descriptor - stored separately from track points
 // The actual loop frame (forward, up, right) is computed at runtime from the spline
@@ -121,7 +120,6 @@ interface RollerCoasterState {
   hasChainLift: boolean;
   showWoodSupports: boolean;
   isNightMode: boolean;
-  weatherType: WeatherType;
   cameraTarget: THREE.Vector3 | null;
   savedCoasters: SavedCoaster[];
   currentCoasterName: string | null;
@@ -144,7 +142,6 @@ interface RollerCoasterState {
   setHasChainLift: (hasChain: boolean) => void;
   setShowWoodSupports: (show: boolean) => void;
   setIsNightMode: (night: boolean) => void;
-  setWeatherType: (weather: WeatherType) => void;
   startRide: () => void;
   stopRide: () => void;
   
@@ -173,7 +170,6 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   hasChainLift: true,
   showWoodSupports: false,
   isNightMode: false,
-  weatherType: "sunny",
   cameraTarget: null,
   savedCoasters: loadSavedCoasters(),
   currentCoasterName: null,
@@ -193,8 +189,6 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   setShowWoodSupports: (show) => set({ showWoodSupports: show }),
   
   setIsNightMode: (night) => set({ isNightMode: night }),
-  
-  setWeatherType: (weather) => set({ weatherType: weather }),
   
   addTrackPoint: (position) => {
     const id = `point-${++pointCounter}`;
