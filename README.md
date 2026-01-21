@@ -1,4 +1,4 @@
-# 3D Roller Coaster Builder
+# 3D Roller Coaster Builder //
 
 An interactive 3D roller coaster builder built with React, Three.js, and Vite. Design and ride your own roller coasters with loops, hills, and realistic wood supports.
 
