@@ -17,14 +17,15 @@ export function Ground() {
   texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
   texture.repeat.set(200, 200);
   
-  const materialProps = groundType === 'snow' 
-    ? { color: "#ffffff", roughness: 0.8, metalness: 0.1 } 
-    : { map: texture };
-
   return (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, 0]} receiveShadow>
       <planeGeometry args={[800, 800]} />
-      <meshStandardMaterial {...materialProps} />
+      <meshStandardMaterial 
+        map={groundType === 'snow' ? null : texture} 
+        color={groundType === 'snow' ? "#ffffff" : "#ffffff"} 
+        roughness={groundType === 'snow' ? 0.9 : 0.8}
+        metalness={groundType === 'snow' ? 0.05 : 0.1}
+      />
     </mesh>
   );
 }
