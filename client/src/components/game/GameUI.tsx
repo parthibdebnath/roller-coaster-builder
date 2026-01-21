@@ -300,7 +300,7 @@ export function GameUI() {
                 />
               </div>
               <p className="text-[10px] text-gray-400 mt-1 italic">
-                Use ↑ to accelerate, ↓ to brake
+                Use ↓ (down arrow key) to brake
               </p>
             </div>
             
