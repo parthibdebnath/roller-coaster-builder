@@ -1,8 +1,80 @@
-import { useMemo } from "react";
+import { useMemo, useEffect, useRef } from "react";
 import { useRollerCoaster } from "@/lib/stores/useRollerCoaster";
+import * as THREE from "three";
+import { useFrame } from "@react-three/fiber";
+
+function WeatherParticles({ type }: { type: "rain" | "snow" }) {
+  const count = 2000;
+  const meshRef = useRef<THREE.Points>(null);
+  
+  const particles = useMemo(() => {
+    const pos = new Float32Array(count * 3);
+    const vel = new Float32Array(count);
+    for (let i = 0; i < count; i++) {
+      pos[i * 3] = (Math.random() - 0.5) * 100;
+      pos[i * 3 + 1] = Math.random() * 50;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * 100;
+      vel[i] = type === "rain" ? 0.5 + Math.random() * 0.5 : 0.1 + Math.random() * 0.1;
+    }
+    return { pos, vel };
+  }, [type]);
+
+  useFrame((state) => {
+    if (!meshRef.current) return;
+    const positions = meshRef.current.geometry.attributes.position.array as Float32Array;
+    for (let i = 0; i < count; i++) {
+      positions[i * 3 + 1] -= particles.vel[i];
+      if (positions[i * 3 + 1] < 0) {
+        positions[i * 3 + 1] = 50;
+      }
+    }
+    meshRef.current.geometry.attributes.position.needsUpdate = true;
+  });
+
+  return (
+    <points ref={meshRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={count}
+          array={particles.pos}
+          itemSize={3}
+        />
+      </bufferGeometry>
+      <pointsMaterial
+        size={type === "rain" ? 0.1 : 0.2}
+        color={type === "rain" ? "#aabbff" : "#ffffff"}
+        transparent
+        opacity={0.6}
+        sizeAttenuation
+      />
+    </points>
+  );
+}
 
 export function Sky() {
-  const { isNightMode } = useRollerCoaster();
+  const { isNightMode, weather } = useRollerCoaster();
+  
+  const skyColor = useMemo(() => {
+    if (isNightMode) return "#101025";
+    if (weather === "rain") return "#4a4a5a";
+    if (weather === "snow") return "#d0d8e0";
+    return "#87CEEB";
+  }, [isNightMode, weather]);
+
+  const fogColor = useMemo(() => {
+    if (isNightMode) return "#101025";
+    if (weather === "rain") return "#3a3a4a";
+    if (weather === "snow") return "#b0b8c0";
+    return "#87CEEB";
+  }, [isNightMode, weather]);
+
+  const ambientIntensity = useMemo(() => {
+    if (isNightMode) return 0.4;
+    if (weather === "rain") return 0.2;
+    if (weather === "snow") return 0.6;
+    return 0.4;
+  }, [isNightMode, weather]);
   
   const parkLights = useMemo(() => {
     const lights: { x: number; z: number; height: number; color: string }[] = [];
@@ -47,13 +119,13 @@ export function Sky() {
   if (isNightMode) {
     return (
       <>
-        <color attach="background" args={["#101025"]} />
-        <fog attach="fog" args={["#101025", 150, 500]} />
+        <color attach="background" args={[skyColor]} />
+        <fog attach="fog" args={[fogColor, 150, 500]} />
         
-        <ambientLight intensity={0.4} color="#6688cc" />
-        <directionalLight position={[50, 50, 25]} intensity={0.5} color="#8899bb" />
+        <ambientLight intensity={ambientIntensity} color="#6688cc" />
+        <directionalLight position={[50, 50, 25]} intensity={weather === "sunny" ? 0.5 : 0.2} color="#8899bb" />
         
-        <pointLight position={[0, 30, 0]} intensity={2} color="#FFFFFF" distance={150} />
+        {weather !== "sunny" && <WeatherParticles type={weather as "rain" | "snow"} />}
         <pointLight position={[100, 40, -80]} intensity={1.5} color="#FF88FF" distance={100} />
         <pointLight position={[-80, 35, 60]} intensity={1.5} color="#FFAA44" distance={100} />
         
@@ -187,18 +259,18 @@ export function Sky() {
   
   return (
     <>
-      <color attach="background" args={["#87CEEB"]} />
-      <fog attach="fog" args={["#87CEEB", 100, 400]} />
+      <color attach="background" args={[skyColor]} />
+      <fog attach="fog" args={[fogColor, 100, 400]} />
       
-      <mesh position={[50, 40, -50]}>
+      <mesh position={[50, 40, -50]} visible={weather === "sunny"}>
         <sphereGeometry args={[8, 32, 32]} />
         <meshBasicMaterial color="#FFFF88" />
       </mesh>
       
-      <ambientLight intensity={0.4} />
+      <ambientLight intensity={ambientIntensity} />
       <directionalLight
         position={[50, 50, 25]}
-        intensity={1}
+        intensity={weather === "sunny" ? 1 : 0.4}
         castShadow
         shadow-mapSize-width={2048}
         shadow-mapSize-height={2048}
@@ -208,7 +280,8 @@ export function Sky() {
         shadow-camera-top={100}
         shadow-camera-bottom={-100}
       />
-      <hemisphereLight args={["#87CEEB", "#228B22", 0.3]} />
+      <hemisphereLight args={[skyColor, "#228B22", 0.3]} />
+      {weather !== "sunny" && <WeatherParticles type={weather as "rain" | "snow"} />}
     </>
   );
 }

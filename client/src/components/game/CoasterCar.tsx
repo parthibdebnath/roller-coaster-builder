@@ -182,7 +182,47 @@ function sampleHybridTrack(
 
 export function CoasterCar() {
   const meshRef = useRef<THREE.Group>(null);
-  const { trackPoints, loopSegments, rideProgress, isRiding, mode, isLooped } = useRollerCoaster();
+  const { 
+    trackPoints, 
+    loopSegments, 
+    rideProgress, 
+    isRiding, 
+    mode, 
+    isLooped, 
+    rideSpeed, 
+    setRideSpeed, 
+    targetRideSpeed, 
+    setTargetRideSpeed 
+  } = useRollerCoaster();
+
+  // Smooth speed transition and controls
+  useFrame((state, delta) => {
+    if (!isRiding) return;
+
+    // Handle Keyboard Controls
+    const keys = (state as any).keyboard || {};
+    // We'll use a local check for keys if possible or just use window listeners
+    
+    // Smooth speed interpolation
+    if (Math.abs(rideSpeed - targetRideSpeed) > 0.01) {
+      const step = delta * 1.5; // Acceleration rate
+      if (rideSpeed < targetRideSpeed) setRideSpeed(rideSpeed + step);
+      else setRideSpeed(rideSpeed - step);
+    }
+  });
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (!isRiding) return;
+      if (e.key === "ArrowUp") {
+        setTargetRideSpeed(targetRideSpeed + 0.5);
+      } else if (e.key === "ArrowDown") {
+        setTargetRideSpeed(targetRideSpeed - 0.5);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isRiding, targetRideSpeed]);
   
   const sections = useMemo(() => {
     if (trackPoints.length < 2) return [];

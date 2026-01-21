@@ -24,6 +24,10 @@ export function GameUI() {
     setShowWoodSupports,
     isNightMode,
     setIsNightMode,
+    weather,
+    setWeather,
+    targetRideSpeed,
+    setTargetRideSpeed,
     createLoopAtPoint,
     setCameraTarget,
     savedCoasters,
@@ -179,6 +183,21 @@ export function GameUI() {
               >
                 {isNightMode ? "Night ON" : "Night OFF"}
               </Button>
+
+              <div className="flex gap-1">
+                {(["sunny", "rain", "snow"] as const).map((w) => (
+                  <Button
+                    key={w}
+                    size="sm"
+                    onClick={() => setWeather(w)}
+                    className={`h-6 text-[10px] px-1 flex-1 capitalize ${weather === w 
+                      ? "bg-blue-500" 
+                      : "bg-gray-700 hover:bg-gray-600"}`}
+                  >
+                    {w}
+                  </Button>
+                ))}
+              </div>
               
               <Button
                 size="sm"
@@ -270,14 +289,18 @@ export function GameUI() {
         {mode === "ride" && (
           <>
             <div className="mb-2">
+              <div className="flex justify-between items-center mb-1">
+                <span className="text-[10px] text-gray-400">Progress</span>
+                <span className="text-[10px] text-gray-400">Speed: {rideSpeed.toFixed(1)}x</span>
+              </div>
               <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
                 <div
                   className="h-full bg-green-500 transition-all duration-100"
                   style={{ width: `${rideProgress * 100}%` }}
                 />
               </div>
-              <p className="text-[10px] text-gray-400 mt-0.5">
-                {Math.round(rideProgress * 100)}%
+              <p className="text-[10px] text-gray-400 mt-1 italic">
+                Use ↑ to accelerate, ↓ to brake
               </p>
             </div>
             
