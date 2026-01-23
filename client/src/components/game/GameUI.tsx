@@ -319,25 +319,6 @@ export function GameUI() {
                 />
               </div>
               
-              <div className="mt-2">
-                <label className="text-[10px] text-gray-400 block">
-                  Adjust Speed: {targetRideSpeed.toFixed(1)}x
-                </label>
-                <input
-                  type="range"
-                  min="0.2"
-                  max="5"
-                  step="0.1"
-                  value={targetRideSpeed}
-                  onChange={(e) => setTargetRideSpeed(parseFloat(e.target.value))}
-                  className="w-full h-2"
-                />
-              </div>
-              
-              <p className="text-[10px] text-gray-400 mt-1 italic">
-                Use ↑/↓ arrow keys to adjust speed
-              </p>
-            </div>
             
             <div className="flex gap-1">
               <Button
