@@ -2,6 +2,16 @@
 
 An interactive 3D roller coaster builder built with React, Three.js, and Vite. Design and ride your own roller coasters with loops, hills, and realistic wood supports.
 
+## ADDED CUSTOM FEATURES
+
+- Different ground texture selector: grass, snow, desert
+- Weather selector with particle effects: sunny, rainy, snowy
+- Play/Pause Ride at any time
+- Updated lighting 
+- Updated day/night music
+
+
+
 ## Features
 
 - Interactive track building with drag-and-drop control points
