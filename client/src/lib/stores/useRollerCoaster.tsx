@@ -113,6 +113,7 @@ interface RollerCoasterState {
   selectedPointId: string | null;
   rideProgress: number;
   isRiding: boolean;
+  isPaused: boolean;
   rideSpeed: number;
   isDraggingPoint: boolean;
   isAddingPoints: boolean;
@@ -138,6 +139,8 @@ interface RollerCoasterState {
   clearTrack: () => void;
   setRideProgress: (progress: number) => void;
   setIsRiding: (riding: boolean) => void;
+  setIsPaused: (paused: boolean) => void;
+  togglePause: () => void;
   setRideSpeed: (speed: number) => void;
   setTargetRideSpeed: (speed: number) => void;
   setWeather: (weather: "sunny" | "rain" | "snow") => void;
@@ -169,6 +172,7 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   selectedPointId: null,
   rideProgress: 0,
   isRiding: false,
+  isPaused: false,
   rideSpeed: 1.0,
   isDraggingPoint: false,
   isAddingPoints: true,
@@ -274,6 +278,10 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   
   setIsRiding: (riding) => set({ isRiding: riding }),
   
+  setIsPaused: (paused) => set({ isPaused: paused }),
+  
+  togglePause: () => set((state) => ({ isPaused: !state.isPaused })),
+  
   setRideSpeed: (speed) => set({ rideSpeed: speed }),
   
   startRide: () => {
@@ -284,7 +292,7 @@ export const useRollerCoaster = create<RollerCoasterState>((set, get) => ({
   },
   
   stopRide: () => {
-    set({ mode: "build", isRiding: false, rideProgress: 0 });
+    set({ mode: "build", isRiding: false, isPaused: false, rideProgress: 0 });
   },
   
   // Save/Load functionality

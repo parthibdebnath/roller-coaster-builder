@@ -4,16 +4,18 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 
 function WeatherParticles({ type }: { type: "rain" | "snow" }) {
-  const count = 2000;
+  const count = 3000;
   const meshRef = useRef<THREE.Points>(null);
+  const spreadRadius = 200;
+  const heightRange = 80;
   
   const particles = useMemo(() => {
     const pos = new Float32Array(count * 3);
     const vel = new Float32Array(count);
     for (let i = 0; i < count; i++) {
-      pos[i * 3] = (Math.random() - 0.5) * 100;
-      pos[i * 3 + 1] = Math.random() * 50;
-      pos[i * 3 + 2] = (Math.random() - 0.5) * 100;
+      pos[i * 3] = (Math.random() - 0.5) * spreadRadius * 2;
+      pos[i * 3 + 1] = Math.random() * heightRange;
+      pos[i * 3 + 2] = (Math.random() - 0.5) * spreadRadius * 2;
       vel[i] = type === "rain" ? 0.5 + Math.random() * 0.5 : 0.1 + Math.random() * 0.1;
     }
     return { pos, vel };
@@ -22,10 +24,15 @@ function WeatherParticles({ type }: { type: "rain" | "snow" }) {
   useFrame((state) => {
     if (!meshRef.current) return;
     const positions = meshRef.current.geometry.attributes.position.array as Float32Array;
+    const camera = state.camera;
+    
     for (let i = 0; i < count; i++) {
       positions[i * 3 + 1] -= particles.vel[i];
-      if (positions[i * 3 + 1] < 0) {
-        positions[i * 3 + 1] = 50;
+      
+      if (positions[i * 3 + 1] < -10) {
+        positions[i * 3] = camera.position.x + (Math.random() - 0.5) * spreadRadius * 2;
+        positions[i * 3 + 1] = camera.position.y + heightRange / 2 + Math.random() * heightRange / 2;
+        positions[i * 3 + 2] = camera.position.z + (Math.random() - 0.5) * spreadRadius * 2;
       }
     }
     meshRef.current.geometry.attributes.position.needsUpdate = true;
@@ -42,10 +49,10 @@ function WeatherParticles({ type }: { type: "rain" | "snow" }) {
         />
       </bufferGeometry>
       <pointsMaterial
-        size={type === "rain" ? 0.1 : 0.2}
-        color={type === "rain" ? "#aabbff" : "#ffffff"}
+        size={type === "rain" ? 0.15 : 0.25}
+        color={type === "rain" ? "#7ec8e3" : "#ffffff"}
         transparent
-        opacity={0.6}
+        opacity={type === "rain" ? 0.7 : 0.8}
         sizeAttenuation
       />
     </points>

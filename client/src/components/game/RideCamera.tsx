@@ -113,7 +113,7 @@ function computeRollArcLength(radius: number, pitch: number): number {
 
 export function RideCamera() {
   const { camera } = useThree();
-  const { trackPoints, loopSegments, isRiding, rideProgress, setRideProgress, rideSpeed, stopRide, isLooped, hasChainLift } = useRollerCoaster();
+  const { trackPoints, loopSegments, isRiding, isPaused, rideProgress, setRideProgress, rideSpeed, stopRide, isLooped, hasChainLift } = useRollerCoaster();
   
   const curveRef = useRef<THREE.CatmullRomCurve3 | null>(null);
   const previousCameraPos = useRef(new THREE.Vector3());
@@ -262,7 +262,7 @@ export function RideCamera() {
   }, [isRiding]);
   
   useFrame((_, delta) => {
-    if (!isRiding || !curveRef.current || sections.length === 0) return;
+    if (!isRiding || isPaused || !curveRef.current || sections.length === 0) return;
     
     const curve = curveRef.current;
     

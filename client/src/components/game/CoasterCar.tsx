@@ -1,4 +1,4 @@
-import { useRef, useMemo } from "react";
+import { useRef, useMemo, useEffect } from "react";
 import { useFrame } from "@react-three/fiber";
 import * as THREE from "three";
 import { useRollerCoaster, LoopSegment } from "@/lib/stores/useRollerCoaster";
@@ -196,8 +196,10 @@ export function CoasterCar() {
   } = useRollerCoaster();
 
   // Smooth speed transition and controls
+  const { isPaused } = useRollerCoaster();
+  
   useFrame((state, delta) => {
-    if (!isRiding) return;
+    if (!isRiding || isPaused) return;
 
     // Handle Keyboard Controls
     const keys = (state as any).keyboard || {};

@@ -32,6 +32,8 @@ export function GameUI() {
     setTargetRideSpeed,
     createLoopAtPoint,
     setCameraTarget,
+    isPaused,
+    togglePause,
     savedCoasters,
     currentCoasterName,
     saveCoaster,
@@ -308,7 +310,7 @@ export function GameUI() {
             <div className="mb-2">
               <div className="flex justify-between items-center mb-1">
                 <span className="text-[10px] text-gray-400">Progress</span>
-                <span className="text-[10px] text-gray-400">Speed: {rideSpeed.toFixed(1)}x</span>
+                <span className="text-[10px] text-gray-400">Speed: {targetRideSpeed.toFixed(1)}x</span>
               </div>
               <div className="h-1.5 bg-gray-700 rounded-full overflow-hidden">
                 <div
@@ -316,19 +318,47 @@ export function GameUI() {
                   style={{ width: `${rideProgress * 100}%` }}
                 />
               </div>
+              
+              <div className="mt-2">
+                <label className="text-[10px] text-gray-400 block">
+                  Adjust Speed: {targetRideSpeed.toFixed(1)}x
+                </label>
+                <input
+                  type="range"
+                  min="0.2"
+                  max="5"
+                  step="0.1"
+                  value={targetRideSpeed}
+                  onChange={(e) => setTargetRideSpeed(parseFloat(e.target.value))}
+                  className="w-full h-2"
+                />
+              </div>
+              
               <p className="text-[10px] text-gray-400 mt-1 italic">
-                Use ↓ (down arrow key) to brake
+                Use ↑/↓ arrow keys to adjust speed
               </p>
             </div>
             
-            <Button
-              size="sm"
-              onClick={stopRide}
-              variant="outline"
-              className="h-6 text-[10px] px-2 border-white text-white hover:bg-white/20 w-full"
-            >
-              Exit
-            </Button>
+            <div className="flex gap-1">
+              <Button
+                size="sm"
+                onClick={togglePause}
+                className={`h-6 text-[10px] px-2 flex-1 ${isPaused 
+                  ? "bg-green-600 hover:bg-green-700" 
+                  : "bg-yellow-600 hover:bg-yellow-700"}`}
+              >
+                {isPaused ? "Resume" : "Pause"}
+              </Button>
+              
+              <Button
+                size="sm"
+                onClick={stopRide}
+                variant="outline"
+                className="h-6 text-[10px] px-2 border-white text-white hover:bg-white/20 flex-1"
+              >
+                Exit
+              </Button>
+            </div>
           </>
         )}
         
