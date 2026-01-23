@@ -205,11 +205,11 @@ export function CoasterCar() {
     const keys = (state as any).keyboard || {};
     // We'll use a local check for keys if possible or just use window listeners
     
-    // Smooth speed interpolation
+    // Smooth speed interpolation - faster acceleration for more responsive control
     if (Math.abs(rideSpeed - targetRideSpeed) > 0.01) {
-      const step = delta * 1.5; // Acceleration rate
-      if (rideSpeed < targetRideSpeed) setRideSpeed(rideSpeed + step);
-      else setRideSpeed(rideSpeed - step);
+      const step = delta * 8; // Much faster acceleration rate for dramatic speed changes
+      if (rideSpeed < targetRideSpeed) setRideSpeed(Math.min(rideSpeed + step, targetRideSpeed));
+      else setRideSpeed(Math.max(rideSpeed - step, targetRideSpeed));
     }
   });
 
@@ -217,9 +217,9 @@ export function CoasterCar() {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (!isRiding) return;
       if (e.key === "ArrowUp") {
-        setTargetRideSpeed(targetRideSpeed + 0.5);
+        setTargetRideSpeed(targetRideSpeed + 1.5); // More drastic speed increase
       } else if (e.key === "ArrowDown") {
-        setTargetRideSpeed(targetRideSpeed - 0.5);
+        setTargetRideSpeed(targetRideSpeed - 1.5); // More drastic speed decrease
       }
     };
     window.addEventListener("keydown", handleKeyDown);
